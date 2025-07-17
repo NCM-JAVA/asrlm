@@ -1,0 +1,45 @@
+remove services from front end
+remove team from fe
+remove Restaurents
+
+Sign up Process
+-> Restaurant Name
+-> Email
+-> Password
+-> Confirm Password
+-> Contact Number
+-> Address / Location
+
+admin dashboard
+Menu
+Category
+Table
+
+
+Remove Notification etc icons top
+
+remove Daily Trending Menus
+
+Recent Order Request to recent signup req
+
+
+recent signup req home page refe customer get rid custid,remove total spend,add restro name
+
+customer list to restraurent 
+
+remove order list,order,review
+
+
+main menu like restro customers
+
+menu as per refrence shared costic
+
+add product detail on click on menu item
+
+product detail page as per reference with ratings star
+
+
+
+
+
+
