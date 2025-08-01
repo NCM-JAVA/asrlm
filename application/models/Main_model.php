@@ -1050,6 +1050,23 @@ public function  deleteflushbarcode($id)
 	
 	
 	}
+
+	
+	public function  userchangestatus($id)
+	{
+	  	$user = $this->db->get_where('user', ['id' => $id])->row_array();
+
+		if ($user) {
+			$new_status = ($user['status'] == '1') ? '0' : '1';
+
+			$this->db->where('id', $id);
+			$this->db->update('user', ['status' => $new_status]);
+
+			return $new_status;
+		}
+
+		return false; 
+	}
 	
 	/*** get user insert page details ***/
 	 	
@@ -1768,6 +1785,47 @@ public function  deleteflushbarcode($id)
 
 		return $output;		
 	}
+
+	public function getproducergroupbygp($grampanchayatname){
+		/*$sql1 = $this->db->query("SELECT * FROM `location` WHERE district = '".$disctrict."' ORDER BY district ASC ");
+		
+		return  $sql1->result_array();*/
+		
+		  $this->db->distinct();
+		  $this->db->select('pgname');
+		  $this->db->where('grampanchayat', $grampanchayatname);
+		  $this->db->order_by('pgname', 'ASC');
+		  $query = $this->db->get('pg_panel');
+		  
+		  $output = '<option value="">Select Producer Group</option>';
+		  foreach($query->result() as $row)
+		  {
+		   $output .= '<option value="'.$row->pgname  .'">'.ucfirst($row->pgname ) .'</option>';
+		  }
+		  return $output;
+		
+	}
+
+	public function getclf($producergroup){
+		/*$sql1 = $this->db->query("SELECT * FROM `location` WHERE district = '".$disctrict."' ORDER BY district ASC ");
+		
+		return  $sql1->result_array();*/
+		
+		  $this->db->distinct();
+		  $this->db->select('clf');
+		  $this->db->where('pgname', $producergroup);
+		  $this->db->order_by('pgname', 'ASC');
+		  $query = $this->db->get('pg_panel');
+		  
+		  $output = '<option value="">Select CLF</option>';
+		  foreach($query->result() as $row)
+		  {
+		   $output .= '<option value="'.$row->clf  .'">'.ucfirst($row->clf ) .'</option>';
+		  }
+		  return $output;
+		
+	}
+
 	public function getlocations($type){
 		
 	
@@ -2104,9 +2162,40 @@ public function  deleteflushbarcode($id)
 		$this->db->update('member_transaction',$data);
 	}
 
-	public function get_member_transaction_details($pgid){
-		$qry = $this->db->query('SELECT * FROM member_transaction WHERE pgid = "'.$pgid.'"');
-		return $qry->result_array();
+	public function get_member_transaction_details($pg_member_transaction_data){
+		// $qry = $this->db->query('SELECT * FROM member_transaction WHERE pgid = "'.$pgid.'"');
+
+		if (!empty($pg_member_transaction_data['pgid'])) {
+			$this->db->where('pgid', $pg_member_transaction_data['pgid']);
+		}
+
+		if (!empty($pg_member_transaction_data['pg_name'])) {
+			$this->db->where('pg_name', $pg_member_transaction_data['pg_name']);
+		}	
+		if (!empty($pg_member_transaction_data['member_name'])) {
+			$this->db->where('member_name', $pg_member_transaction_data['member_name']);
+		}
+		if (!empty($pg_member_transaction_data['financial_year'])) {
+			$this->db->where('financial_year', $pg_member_transaction_data['financial_year']);
+		}
+		if (!empty($pg_member_transaction_data['month'])) {
+			$this->db->where('month', $pg_member_transaction_data['month']);
+		}
+		if (!empty($pg_member_transaction_data['district'])) {
+			$this->db->where('district', $pg_member_transaction_data['district']);
+		}
+		if (!empty($pg_member_transaction_data['block'])) {
+			$this->db->where('block', $pg_member_transaction_data['block']);
+		}
+		if (!empty($pg_member_transaction_data['gram_panchayat'])) {
+			$this->db->where('gram_panchayat', $pg_member_transaction_data['gram_panchayat']);
+		}
+		if (!empty($pg_member_transaction_data['village'])) {
+			$this->db->where('village', $pg_member_transaction_data['village']);
+		}
+
+		$query = $this->db->get('member_transaction');
+		return $query->result_array();
 	}
 
 	public function get_member_transaction_details_current_month($id){

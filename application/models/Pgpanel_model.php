@@ -363,13 +363,16 @@ class Pgpanel_model extends CI_Model
             $this->db->where('clf_model', $filters['clf_model']);
         }
         if (!empty($filters['category'])) {
-            $this->db->where('category', $filters['category']);
+            // $this->db->where('category', $filters['category']);
+			 $this->db->where("FIND_IN_SET('{$filters['category']}', category) >", 0);
         }
         if (!empty($filters['sub_category'])) {
-            $this->db->where('sub_category', $filters['sub_category']);
+            // $this->db->where('sub_category', $filters['sub_category']);
+			$this->db->where("FIND_IN_SET('{$filters['sub_category']}', sub_category) >", 0);
         }
         if (!empty($filters['commodityname'])) {
-            $this->db->where('commodityname', $filters['commodityname']);
+            // $this->db->where('commodityname', $filters['commodityname']);
+			$this->db->where("FIND_IN_SET('{$filters['commodityname']}', commodityname) >", 0);
         }
         
         if (!empty($filters['date_from']) && !empty($filters['date_to'])) {
@@ -566,12 +569,8 @@ class Pgpanel_model extends CI_Model
 	 }
 
 	 public function get_book_records_report_data($filters){
-		$this->db->select('pg_cashbooks.*, pg_panel.pgname');
+		$this->db->select('*');
         $this->db->from('pg_panel');
-		$this->db->join('pg_cashbooks', 'pg_panel.pgid = pg_cashbooks.pgid', 'right');
-
-		// print_r($filters);
-		// die();
 
 		if (!empty($filters['dist'])) {
             $this->db->where('district', $filters['dist']);
@@ -612,9 +611,8 @@ class Pgpanel_model extends CI_Model
 	 }
 
 	 public function get_all_book_records_report_data(){
-		$this->db->select('pg_cashbooks.*, pg_panel.pgname');
+		$this->db->select('*');
         $this->db->from('pg_panel');
-		$this->db->join('pg_cashbooks', 'pg_panel.pgid = pg_cashbooks.pgid', 'right');
 		$query = $this->db->get();
 		return $query->result_array();
 	 }
@@ -674,12 +672,9 @@ class Pgpanel_model extends CI_Model
 	 }
 
 	 public function get_commodity_details_report_data($filters){
-		$this->db->select('member_panel.*, pg_panel.pgname');
+		$this->db->select('member_panel.*, pg_panel.pgname, pg_panel.clf, pg_panel.clf_model, pg_panel.category, pg_panel.sub_category, pg_panel.commodityname');
         $this->db->from('pg_panel');
-		$this->db->join('member_panel', 'pg_panel.pgid = member_panel.pgid', 'right');
-
-		// print_r($filters);
-		// die();
+		$this->db->join('member_panel', 'pg_panel.pgid = member_panel.pgid', 'left');
 
 		if (!empty($filters['dist'])) {
             $this->db->where('member_panel.district', $filters['dist']);
@@ -691,71 +686,28 @@ class Pgpanel_model extends CI_Model
             $this->db->where('member_panel.grampanchayat', $filters['gram_panchayat']);
         }
         if (!empty($filters['producer_group'])) {
-            $this->db->where('pgname', $filters['producer_group']);
+            $this->db->where('pg_panel.pgname', $filters['producer_group']);
         }
         if (!empty($filters['clf'])) {
-            $this->db->where('clf', $filters['clf']);
+            $this->db->where('pg_panel.clf', $filters['clf']);
         }
         if (!empty($filters['clf_model'])) {
-            $this->db->where('clf_model', $filters['clf_model']);
+            $this->db->where('pg_panel.clf_model', $filters['clf_model']);
         }
-        if (!empty($filters['fpc_member'])) {
-            $this->db->where('FPCmember', $filters['fpc_member']);
+        if (!empty($filters['fpc_name'])) {
+            $this->db->where('member_panel.name', trim($filters['fpc_name']));
         }
-        if (!empty($filters['financial_year'])) {
-            $this->db->where('financial_year', $filters['financial_year']);
-        }
-        if (!empty($filters['month'])) {
-            $this->db->where('month', $filters['month']);
-        }
-        
-        if (!empty($filters['date_from']) && !empty($filters['date_to'])) {
-            $this->db->where('member_panel.last_updated >=', $filters['date_from']);
-            $this->db->where('member_panel.last_updated <=', $filters['date_to']);
-        }
+		if (!empty($filters['category'])) {
+			$this->db->where("FIND_IN_SET('{$filters['category']}', pg_panel.category) >", 0);
+		}
 
-		$query = $this->db->get();
-		return $query->result_array();
+		if (!empty($filters['sub_category'])) {
+			$this->db->where("FIND_IN_SET('{$filters['sub_category']}', pg_panel.sub_category) >", 0);
+		}
 
-	 }
-
-	 public function get_all_commodity_details_report_data(){
-		$this->db->select('member_panel.*, pg_panel.pgname');
-        $this->db->from('pg_panel');
-		$this->db->join('member_panel', 'pg_panel.pgid = member_panel.pgid', 'right');
-		$query = $this->db->get();
-		return $query->result_array();
-	 }
-
-	 public function get_sale_to_pg_details_report_data($filters){
-		$this->db->select('member_panel.*, pg_panel.pgname');
-        $this->db->from('pg_panel');
-		$this->db->join('member_panel', 'pg_panel.pgid = member_panel.pgid', 'right');
-
-		// print_r($filters);
-		// die();
-
-		if (!empty($filters['dist'])) {
-            $this->db->where('member_panel.district', $filters['dist']);
-        }
-        if (!empty($filters['block'])) {
-            $this->db->where('member_panel.block', $filters['block']);
-        }
-        if (!empty($filters['gram_panchayat'])) {
-            $this->db->where('member_panel.grampanchayat', $filters['gram_panchayat']);
-        }
-        if (!empty($filters['producer_group'])) {
-            $this->db->where('pgname', $filters['producer_group']);
-        }
-        if (!empty($filters['clf'])) {
-            $this->db->where('clf', $filters['clf']);
-        }
-        if (!empty($filters['clf_model'])) {
-            $this->db->where('clf_model', $filters['clf_model']);
-        }
-        if (!empty($filters['fpc_member'])) {
-            $this->db->where('FPCmember', $filters['fpc_member']);
-        }
+		if (!empty($filters['commodityname'])) {
+			$this->db->where("FIND_IN_SET('{$filters['commodityname']}', pg_panel.commodityname) >", 0);
+		}
         // if (!empty($filters['financial_year'])) {
         //     $this->db->where('financial_year', $filters['financial_year']);
         // }
@@ -769,14 +721,76 @@ class Pgpanel_model extends CI_Model
         }
 
 		$query = $this->db->get();
+		// print_r($query->result_array);
+		// die();
+		return $query->result_array();
+
+	 }
+
+	 public function get_all_commodity_details_report_data(){
+		$this->db->select('member_panel.*, pg_panel.pgname, pg_panel.clf, pg_panel.clf_model');
+        $this->db->from('pg_panel');
+		$this->db->join('member_panel', 'pg_panel.pgid = member_panel.pgid', 'right');
+		$query = $this->db->get();
+		return $query->result_array();
+	 }
+
+	 public function get_sale_to_pg_details_report_data($filters){
+		$this->db->select('member_transaction.*, pg_panel.pgname, pg_panel.clf, pg_panel.clf_model, pg_panel.category, pg_panel.sub_category, pg_panel.commodityname');
+        $this->db->from('pg_panel');
+		$this->db->join('member_transaction', 'pg_panel.pgid = member_transaction.pgid', 'left');
+
+		if (!empty($filters['dist'])) {
+            $this->db->where('member_transaction.district', $filters['dist']);
+        }
+        if (!empty($filters['block'])) {
+            $this->db->where('member_transaction.block', $filters['block']);
+        }
+        if (!empty($filters['gram_panchayat'])) {
+            $this->db->where('member_transaction.gram_panchayat', $filters['gram_panchayat']);
+        }
+        if (!empty($filters['producer_group'])) {
+            $this->db->where('pg_panel.pgname', $filters['producer_group']);
+        }
+        if (!empty($filters['clf'])) {
+            $this->db->where('pg_panel.clf', $filters['clf']);
+        }
+        if (!empty($filters['clf_model'])) {
+            $this->db->where('pg_panel.clf_model', $filters['clf_model']);
+        }
+        
+		if (!empty($filters['category'])) {
+			$this->db->where("FIND_IN_SET('{$filters['category']}', pg_panel.category) >", 0);
+		}
+
+		if (!empty($filters['sub_category'])) {
+			$this->db->where("FIND_IN_SET('{$filters['sub_category']}', pg_panel.sub_category) >", 0);
+		}
+
+		if (!empty($filters['commodityname'])) {
+			$this->db->where("FIND_IN_SET('{$filters['commodityname']}', pg_panel.commodityname) >", 0);
+		}
+        // if (!empty($filters['financial_year'])) {
+        //     $this->db->where('financial_year', $filters['financial_year']);
+        // }
+        // if (!empty($filters['month'])) {
+        //     $this->db->where('month', $filters['month']);
+        // }
+        
+        if (!empty($filters['date_from']) && !empty($filters['date_to'])) {
+            $this->db->where('member_transaction.last_updated >=', $filters['date_from']);
+            $this->db->where('member_transaction.last_updated <=', $filters['date_to']);
+        }
+
+		$query = $this->db->get();
 		return $query->result_array();
 
 	 }
 
 	 public function get_all_sale_to_pg_details_report_data(){
-		$this->db->select('member_panel.*, pg_panel.pgname');
+		$this->db->select('member_transaction.*, pg_panel.pgname, pg_panel.clf, pg_panel.clf_model, pg_panel.category, pg_panel.sub_category, pg_panel.commodityname');
         $this->db->from('pg_panel');
-		$this->db->join('member_panel', 'pg_panel.pgid = member_panel.pgid', 'right');
+		$this->db->join('member_transaction', 'pg_panel.pgid = member_transaction.pgid', 'left');
 		$query = $this->db->get();
 		return $query->result_array();
 	 }
